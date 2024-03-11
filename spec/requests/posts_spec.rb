@@ -83,9 +83,12 @@ RSpec.describe 'Post' do
     end
 
     it "does not allow SQL injection" do
-      malicious_term = "' OR 1=1 --"
+      post_1 = Post.create!(title: 'Title with the term foo', tags: [Tag.new(name: 'foo')])
+      post_2 = Post.create!(title: 'Another title with the term foo', tags: [Tag.new(name: 'tag2')])
+      post_3 = Post.create!(title: 'Title with the term bar', tags: [Tag.new(name: 'foo')])
+      sql_injection = "' OR 1=1 --"
       
-      get '/api/posts/search', params: { term: malicious_term }, as: :json
+      get '/api/posts/search', params: { term: sql_injection }, as: :json
 
       json = JSON.parse(response.body)
       expect(json).to be_a(Array)
