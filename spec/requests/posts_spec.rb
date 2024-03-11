@@ -81,5 +81,15 @@ RSpec.describe 'Post' do
       expect(json.length).to eq(3)
       expect(json.map { |post| post['title'] }).to include(post_1.title, post_2.title, post_3.title)
     end
+
+    it "does not allow SQL injection" do
+      malicious_term = "' OR 1=1 --"
+      
+      get '/api/posts/search', params: { term: malicious_term }, as: :json
+
+      json = JSON.parse(response.body)
+      expect(json).to be_a(Array)
+      expect(json.length).to eq(0)
+    end
   end
 end
